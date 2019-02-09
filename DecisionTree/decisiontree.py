@@ -12,7 +12,16 @@ def entropy(attribute):
 		return 0
 	uniq, counts = np.unique(attribute, return_counts=True)
 	val = counts / num
+	
+	#val = np.ma.masked_array(val, mask=(val<=0), fill_value=0)
+	#print("Original val:", val , "- Counts:", counts, "- Num:", num)
+	
 	res = -val.dot(np.log2(val))
+	
+	#print("Prev Res", res)
+	#res = np.ma.filled(res)
+	
+	#print("Res:", res)
 	return res
 
 
@@ -56,6 +65,8 @@ def gain(attribute, label, purityfunction):
 	#Get unique values of attr and their corresponding counts
 	uniques, counts = np.unique(attribute, return_counts=True)
 	num = len(uniques)
+	
+	
 	for i in range(0,num):
 		
 		
@@ -64,7 +75,7 @@ def gain(attribute, label, purityfunction):
 		temp = purityfunction(label[attribute == uniques[i]])
 			
 		sum += counts[i] * temp
-					
+
 	return purityfunction(label) - sum / total
 
 #Decision Tree based off of the ID3 algorithm
@@ -94,7 +105,7 @@ class Tree:
 	#
 	#parent    - parent tree object
 	#
-	def __init__(self, labels, attr, currlvl, maxd, origs=None, purityfnc=entropy, parent=None):
+	def __init__(self, labels, attr, currlvl, maxd, pchoice=None, origs=None, purityfnc=entropy, parent=None):
 		
 		print("\nNew Tree")
 		
@@ -107,6 +118,9 @@ class Tree:
 		
 		if maxd is not None:
 			self.maxdepth = maxd
+			
+		if pchoice is not None:
+			self.choice = pchoice
 		
 		#Save original column layouts.(Rows get deleted due to splitting, so originals changes
 		#on each subtree)
@@ -135,6 +149,7 @@ class Tree:
 		self.makeSubTree(labels, attr, purityfnc)	
 	
 	
+	
 	#
 	#
 	#
@@ -157,8 +172,8 @@ class Tree:
 	
 	
 	
-	#
-	#
+	#Recursive Function that gets the best attribute to split on
+	#then will make subtrees for each value that the best attribute can take on
 	#
 	def makeSubTree(self, labels, attr, purity):
 		#Find the best attribute to split on
@@ -187,17 +202,55 @@ class Tree:
 			
 			#split the best column from the rows for this choice
 			childattr = np.delete(splitrows,[currbest],1)	
-		
-			#print("\n Original Cols(Child):\n", childorig, "\n")
-			#print("Rows and child attributes")
-			#print(splitrows)
-			#print(childattr)
-			#print("\n\n")
-			
+					
 			#Make the subtree(Recurse) for this choice and value, adding the subtree as a child on its return
-			child = Tree(childlabels, childattr,self.level+1,self.maxdepth,childorig,purity,self)
+			child = Tree(childlabels, childattr,self.level+1,self.maxdepth, uniq, childorig,purity,self)
 			self.children.append(child)		
 		return
+	
+	
+	#Given new examples(attr), use the decision tree to predict what the resulting label
+	#will be
+	#
+	def predict(self, attr):
+	
+		#print(attr)
+		
+		temp = np.empty(len(attr), dtype=object)
+		
+		#print(attr)
+		#print("LENGTH:" , len(temp))
+		#print(attr)
+		
+		if len(self.children) == 0:
+			#print("RESULTING LABEL!:", self.label)
+			predictions = temp
+			for i in range(0,len(predictions)):				
+				predictions[i] = self.label
+				#print("AFTER:",predictions[i])
+			#print("PREDICTIONS :", predictions)
+			return predictions
+	
+		predictions = temp
+		
+		#print("LENGTH:", attr.size)
+		for child in self.children:
+			#print("Attr path:" , child.attribute, "Child Attr Choice: ", child.choice)
+			#print("CURR:", self.attribute) 
+			matches = (attr[:,self.attribute]==child.choice) 
+			#matches = attr[:,self.attribute]
+			#print("MATCH: ", matches)
+			#matches = matches==child.choice
+			#print("NEWMATCHES: ", matches)
+			#matches = np.where(attr[:,self.attribute]==child.choice)
+			#print(matches)
+			predictions[matches] = child.predict(attr[matches])
+	
+		return predictions
+	
+	
+	
+	
 	
 	
 	
