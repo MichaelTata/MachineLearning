@@ -5,7 +5,7 @@ import decisiontree as dt
 
 
 ## 0 for categorical attributes, 1 for numerical(or attributes based on ranges)
-num = 0
+num = 1
 
 #List of score tuples, where each score tuple corresponds to a tree with max depth of list index + 1, and the 2 scores are for train and
 #testing predictions
@@ -17,7 +17,7 @@ mescores = []
 ##Categorical
 if num == 0:
 
-	for maxlvl in range(1,7):
+	for maxlvl in range(1,8):
 
 		attr = pd.read_csv('./Data/train.csv', names=["buying","maint","doors","persons","lug_boot","safety","label"])
 		#attr = pd.read_csv('./Data/temp2.csv', names=["Outlook","Temperature","Humidity","Wind","label"])
@@ -87,12 +87,12 @@ else:
 	
 	
 	#Count unknown as an attribute(0) or as a missing value(1)
-	missing = 1
+	missing = 0
 	
 	#numerical attributes
 	numerics = np.array([0,5,9,11,12,13,14])
 	
-	for maxlvl in range(1,17):
+	for maxlvl in range(1,18):
 				
 		attr = pd.read_csv('./Data/Bank/train.csv', names=["age","job","marital","education","default","balance","housing", "loan", "contact", "day", "month", "duration", "campaign", "pdays", "previous", "poutcome", "y"])
 		attr =  attr.values
@@ -233,10 +233,15 @@ avgmetrain = 0
 
 print("\n-----------------------------------Accuracies------------------------------------------")
 print("_______________________________________________________________________________________")
-print("Max   |" +"\t Entropy\t|\t\tGiniIndex\t|\t\tMajErr")
-print("Depth |\tTest\tTrain\t|\t Test \t\t Train\t|\t Test\t\t Train")
+print("Max   |       Entropy         |        GiniIndex         |            MajErr       ")
+print("Depth |  Test          Train  |      Test       Train    |        Test           Train")
 print("_______________________________________________________________________________________")
 for i in range(0,len(giscores)):
+	
+	if i < 9:
+		d = ' '
+	else:
+		d = ''
 
 	avgetest = avgetest + entscores[i][0]
 	avgetrain = avgetrain + entscores[i][1]
@@ -247,11 +252,11 @@ for i in range(0,len(giscores)):
 	avgmetest = avgmetest + mescores[i][0]
 	avgmetrain = avgmetrain + mescores[i][1]
 	
-	print("Level"+ str(i+1) +':',round(entscores[i][0],4),"\t",round(entscores[i][1],4),"\t\t",
-		round(giscores[i][0],4),"\t",round(giscores[i][1],4),"\t\t",round(mescores[i][0],4),"\t",round(mescores[i][1],4))
+	print(d+"Lvl"+ str(i+1) +': ','{:.4f}'.format(round(entscores[i][0],4)),"       ",'{:.4f}'.format(round(entscores[i][1],4)),"      ",
+		'{:.4f}'.format(round(giscores[i][0],4)),"    ",'{:.4f}'.format(round(giscores[i][1],4)),"         ",'{:.4f}'.format(round(mescores[i][0],4)),"         ",'{:.4f}'.format(round(mescores[i][1],4)))
 
 print("_______________________________________________________________________________________")
-print("Avgs:  ", round(avgetest/len(entscores),4), "  ", round(avgetrain/len(entscores),4), "\t", round(avggtest/len(giscores),4),
-	" \t",round(avggtrain/len(giscores),4),"\t",round(avgmetest/len(mescores),4),"\t",round(avgmetrain/len(mescores),4))
-print("AvgErr:",round(1-avgetest/len(entscores),4), "  ", round(1-avgetrain/len(entscores),4), "\t", round(1-avggtest/len(giscores),4),
-	" \t",round(1-avggtrain/len(giscores),4),"\t",round(1-avgmetest/len(mescores),4),"\t",round(1-avgmetrain/len(mescores),4))
+print("Avgs:  ", round(avgetest/len(entscores),4), "     ", round(avgetrain/len(entscores),4), "       ", round(avggtest/len(giscores),4),
+	"    ",round(avggtrain/len(giscores),4),"         ",round(avgmetest/len(mescores),4),"        ",round(avgmetrain/len(mescores),4))
+print("AvgErr:",round(1-avgetest/len(entscores),4), "     ", round(1-avgetrain/len(entscores),4), "       ", round(1-avggtest/len(giscores),4),
+	"    ",round(1-avggtrain/len(giscores),4),"         ",round(1-avgmetest/len(mescores),4),"        ",round(1-avgmetrain/len(mescores),4))

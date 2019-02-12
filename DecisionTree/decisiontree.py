@@ -139,7 +139,7 @@ class Tree:
 			uniq, count = np.unique(labels, return_counts=True)
 			idx = np.argmax(count)		
 			self.label = uniq[idx]
-			print("Label result:", self.label)
+			#print("Label result:", self.label)
 			return 
 		
 		#All labels are the same so we have our leaf node
