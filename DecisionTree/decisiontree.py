@@ -139,7 +139,7 @@ class Tree:
 			uniq, count = np.unique(labels, return_counts=True)
 			idx = np.argmax(count)		
 			self.label = uniq[idx]
-			#print("result:", self.label)
+			print("Label result:", self.label)
 			return 
 		
 		#All labels are the same so we have our leaf node
@@ -190,7 +190,7 @@ class Tree:
 		for i in range(0, np.size(self.originals,1)):		
 			if np.array_equal(bestcol,self.originals[:,i]):				
 				self.attribute = i
-				print("Attribute Choice:" ,self.attribute)
+				#print("Attribute Choice:" ,self.attribute)
 		
 		#cut the best column from all examples
 		cutattr = np.delete(attr,[currbest],1)
