@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-#
+#Calculates entropy to determine purity
 def entropy(attribute):	
 
 	##
@@ -13,15 +13,8 @@ def entropy(attribute):
 	uniq, counts = np.unique(attribute, return_counts=True)
 	val = counts / num
 	
-	#val = np.ma.masked_array(val, mask=(val<=0), fill_value=0)
-	#print("Original val:", val , "- Counts:", counts, "- Num:", num)
-	
 	res = -val.dot(np.log2(val))
 	
-	#print("Prev Res", res)
-	#res = np.ma.filled(res)
-	
-	#print("Res:", res)
 	return res
 
 
@@ -47,15 +40,24 @@ def majority(attribute):
 def gini(attribute):
 
 	num = len(attribute)
+	
+	#if num == 0:
+	#	return 0
+	
 	uniq, counts = np.unique(attribute, return_counts=True)
 	val = counts / num	
+
 	val = np.power(val, 2)
+
 	val = sum(val)
 	res = 1 - val
-		
+	
+
+	
 	return res
 
-#Calculates the information gain 
+#Calculates the information gain
+#based off purity function and summation of subsets
 def gain(attribute, label, purityfunction):
 	
 	#Total label count
@@ -69,24 +71,23 @@ def gain(attribute, label, purityfunction):
 	
 	for i in range(0,num):
 		
-		
-		#print(label[attribute==uniques[i]])
 		#Take label values for current attribute value
 		temp = purityfunction(label[attribute == uniques[i]])
 			
 		sum += counts[i] * temp
-
+		
+	
 	return purityfunction(label) - sum / total
 
 #Decision Tree based off of the ID3 algorithm
 class Tree:
 	label = None     #(string/int/fp)Resulting label if any.
 	attribute = None #(int index)True attribute column that this tree split on
-	choice = None    #(int index)Choice of best attribute split. May be unneeded.
+	choice = None    #(int index)Choice of best attribute split. The value the attribute takes on
 	children = None  #(list of Tree objects) children branches for this tree
 	parent = None    #(tree object) parent tree
 	level = None     #(int) current level
-	maxdepth = 6     #(int) max level growable
+	maxdepth = 8     #(int) max level growable
 	originals = None #(numpy array) Original Columns preserved, used to keep track of
 					 #original attributes after splitting
 	
@@ -107,18 +108,22 @@ class Tree:
 	#
 	def __init__(self, labels, attr, currlvl, maxd, pchoice=None, origs=None, purityfnc=entropy, parent=None):
 		
-		print("\nNew Tree")
+		#print("\nNew Tree")
 		
+		#create children list and the current level
 		self.children = []
 		self.level = currlvl
-		print("Level:", self.level)
+		#print("Level:", self.level)
 		
+		#Set parent
 		if parent is not None:
 			self.parent = parent
 		
+		#Set Max depth.
 		if maxd is not None:
 			self.maxdepth = maxd
-			
+		
+		#Set Choice, or attribute value resulting from split
 		if pchoice is not None:
 			self.choice = pchoice
 		
@@ -133,16 +138,15 @@ class Tree:
 		if np.size(attr, 0) == 0 or self.level == self.maxdepth:
 			uniq, count = np.unique(labels, return_counts=True)
 			idx = np.argmax(count)		
-			#print("\tCount:", count[idx],"\tResLabel:", uniq[idx])
 			self.label = uniq[idx]
-			print("result:", self.label)
+			#print("result:", self.label)
 			return 
 		
 		#All labels are the same so we have our leaf node
 		if np.all(labels == labels[0]):
 			self.label = labels[0]
 			
-			print("result:", self.label)
+			#print("result:", self.label)
 			return
 		
 		#Begin recursion(Building subtrees based off best split)
@@ -150,9 +154,9 @@ class Tree:
 	
 	
 	
-	#
-	#
-	#
+	#GetBest finds the best attribute to split on based on the purity function used.
+	#Requires the labels along with the attributes, to decide which attribute is most pure
+	#Purity is the function you want to use(Gini, Entropy, MajError...)
 	def getBest(self, labels, attr, purity):
 		#Get size of columns to check
 		colsz = np.size(attr, 1)
@@ -163,7 +167,7 @@ class Tree:
 			#Then pass to find the information gain
 			pattr = attr[:,i]
 			gains[i] = gain(pattr, labels, purity)
-		
+			#print("GAINS:", gains[i])
 		
 		
 		#print("Gains:", gains)	
@@ -210,40 +214,28 @@ class Tree:
 	
 	
 	#Given new examples(attr), use the decision tree to predict what the resulting label
-	#will be
-	#
+	#will be.
+	#Returns array of predictions of the same length as the examples array(attr) passed in
 	def predict(self, attr):
-	
-		#print(attr)
 		
+		#Create empty array to store all labels
 		temp = np.empty(len(attr), dtype=object)
 		
-		#print(attr)
-		#print("LENGTH:" , len(temp))
-		#print(attr)
-		
+		#Check if we are at a leaf node and if so take the label
 		if len(self.children) == 0:
-			#print("RESULTING LABEL!:", self.label)
 			predictions = temp
 			for i in range(0,len(predictions)):				
 				predictions[i] = self.label
-				#print("AFTER:",predictions[i])
-			#print("PREDICTIONS :", predictions)
+			
 			return predictions
 	
 		predictions = temp
 		
-		#print("LENGTH:", attr.size)
+		#Go through each child where the given example matches our 
+		#
 		for child in self.children:
-			#print("Attr path:" , child.attribute, "Child Attr Choice: ", child.choice)
-			#print("CURR:", self.attribute) 
 			matches = (attr[:,self.attribute]==child.choice) 
-			#matches = attr[:,self.attribute]
-			#print("MATCH: ", matches)
-			#matches = matches==child.choice
-			#print("NEWMATCHES: ", matches)
-			#matches = np.where(attr[:,self.attribute]==child.choice)
-			#print(matches)
+
 			predictions[matches] = child.predict(attr[matches])
 	
 		return predictions

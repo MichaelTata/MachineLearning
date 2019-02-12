@@ -86,11 +86,7 @@ else:
 	decGi = dt.Tree(label, attr, 1, 8, None, None, dt.gini)
 	decErr = dt.Tree(label, attr, 1, 8, None, None, dt.majority)
 
-	
-	
-	
-	
-	
+
 	testattr = pd.read_csv('./Data/Bank/test.csv', names=["age","job","marital","education","default","balance","housing", "loan", "contact", "day", "month", "duration", "campaign", "pdays", "previous", "poutcome", "y"])
 	
 	testattr = testattr.values
