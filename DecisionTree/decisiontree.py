@@ -101,7 +101,7 @@ class Tree:
 	#
 	#origs     - numpy array which holds original column orderings
 	#
-	#purityfnc - Function to calculate purity for information gain.(3 are given here:entropy,
+	#purityfnc - Function to calculate purity of attribute data.(3 heuristics given here:entropy,
 	#			 gini index, and majority)
 	#
 	#parent    - parent tree object
@@ -156,7 +156,7 @@ class Tree:
 	
 	#GetBest finds the best attribute to split on based on the purity function used.
 	#Requires the labels along with the attributes, to decide which attribute is most pure
-	#Purity is the function you want to use(Gini, Entropy, MajError...)
+	#Purity is the heuristic you want to use(Gini, Entropy, MajError...)
 	def getBest(self, labels, attr, purity):
 		#Get size of columns to check
 		colsz = np.size(attr, 1)

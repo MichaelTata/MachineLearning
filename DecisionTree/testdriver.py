@@ -219,14 +219,39 @@ else:
 
 
 #Output the label counts and then scores of predictions for each tree level.
-print("\n\nTrain Label Counts:", trainlabelcount)
-print("Test Label Counts:", testlabelcount)
+print("\n_______________________________________________________________________________________")
+print("Train Label Counts:", trainlabelcount, " Total:", sum(trainlabelcount))
+print("Test Label Counts:", testlabelcount, "  Total:", sum(testlabelcount))
 
+#Averages accross all trees for different heuristics 
+avgetest = 0
+avgetrain = 0
+avggtest = 0
+avgmetest = 0
+avggtrain = 0
+avgmetrain = 0
+
+print("\n-----------------------------------Accuracies------------------------------------------")
 print("_______________________________________________________________________________________")
-print("Tree  |" +"\t Entropy\t|\t\tGiniIndex\t|\t\tMajErr")
+print("Max   |" +"\t Entropy\t|\t\tGiniIndex\t|\t\tMajErr")
 print("Depth |\tTest\tTrain\t|\t Test \t\t Train\t|\t Test\t\t Train")
 print("_______________________________________________________________________________________")
 for i in range(0,len(giscores)):
+
+	avgetest = avgetest + entscores[i][0]
+	avgetrain = avgetrain + entscores[i][1]
 	
-	print("Level"+ str(i+1) +':',round(entscores[i][0],4),"\t",round(entscores[i][1],4),"\t\t",round(giscores[i][0],4),"\t",round(giscores[i][1],4),"\t\t",round(mescores[i][0],4),"\t",round(mescores[i][1],4))
+	avggtest = avggtest + giscores[i][0]
+	avggtrain = avggtrain + giscores[i][1]
 	
+	avgmetest = avgmetest + mescores[i][0]
+	avgmetrain = avgmetrain + mescores[i][1]
+	
+	print("Level"+ str(i+1) +':',round(entscores[i][0],4),"\t",round(entscores[i][1],4),"\t\t",
+		round(giscores[i][0],4),"\t",round(giscores[i][1],4),"\t\t",round(mescores[i][0],4),"\t",round(mescores[i][1],4))
+
+print("_______________________________________________________________________________________")
+print("Avgs:  ", round(avgetest/len(entscores),4), "  ", round(avgetrain/len(entscores),4), "\t", round(avggtest/len(giscores),4),
+	" \t",round(avggtrain/len(giscores),4),"\t",round(avgmetest/len(mescores),4),"\t",round(avgmetrain/len(mescores),4))
+print("AvgErr:",round(1-avgetest/len(entscores),4), "  ", round(1-avgetrain/len(entscores),4), "\t", round(1-avggtest/len(giscores),4),
+	" \t",round(1-avggtrain/len(giscores),4),"\t",round(1-avgmetest/len(mescores),4),"\t",round(1-avgmetrain/len(mescores),4))
