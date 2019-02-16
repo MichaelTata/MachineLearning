@@ -5,7 +5,7 @@ import decisiontree as dt
 
 
 ## 0 for categorical attributes, 1 for numerical(or attributes based on ranges)
-num = 1
+num = 0
 
 #List of score tuples, where each score tuple corresponds to a tree with max depth of list index + 1, and the 2 scores are for train and
 #testing predictions
@@ -17,7 +17,7 @@ mescores = []
 ##Categorical
 if num == 0:
 
-	for maxlvl in range(1,8):
+	for maxlvl in range(1,3):
 
 		attr = pd.read_csv('./Data/train.csv', names=["buying","maint","doors","persons","lug_boot","safety","label"])
 		#attr = pd.read_csv('./Data/temp2.csv', names=["Outlook","Temperature","Humidity","Wind","label"])
@@ -27,11 +27,15 @@ if num == 0:
 		label = attr[:,-1]
 		attr = np.delete(attr, -1, axis=1)
 
-
+		
 		decEnt = dt.Tree(label, attr, 1, maxlvl, None, None, dt.entropy)
-		decGi = dt.Tree(label, attr, 1, maxlvl, None, None, dt.gini)
+		decGi = dt.Tree(label, attr, 1, maxlvl, purityfnc=dt.gini)
 		decErr = dt.Tree(label, attr, 1, maxlvl, None, None, dt.majority)
-
+		
+		print("Good!")
+		
+		
+		
 		#read in and split the testing dataset
 		testattr = pd.read_csv('./Data/test.csv',names=["buying","maint","doors","persons","lug_boot","safety","label"])
 		#testattr = pd.read_csv('./Data/temp2train.csv',names=["Outlook","Temperature","Humidity","Wind","label"])
@@ -87,12 +91,12 @@ else:
 	
 	
 	#Count unknown as an attribute(0) or as a missing value(1)
-	missing = 0
+	missing = 1
 	
 	#numerical attributes
 	numerics = np.array([0,5,9,11,12,13,14])
 	
-	for maxlvl in range(1,18):
+	for maxlvl in range(1,17):
 				
 		attr = pd.read_csv('./Data/Bank/train.csv', names=["age","job","marital","education","default","balance","housing", "loan", "contact", "day", "month", "duration", "campaign", "pdays", "previous", "poutcome", "y"])
 		attr =  attr.values
@@ -119,6 +123,8 @@ else:
 					
 				#Find unknowns in column, then replace them with most common element.
 				matches = (attr[:,j]=="unknown")
+								#print(matches)
+								#print(attr[:,j])
 								#print("BEFORE:")
 								#print(attr[matches,j])
 				attr[matches,j] = bestguess	
