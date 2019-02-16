@@ -32,38 +32,48 @@ predict finds the predicted labels for an entire numpy array of example attribut
 Example Creation and Prediction usage:
 
 #set max depth of tree
+
 maxlvl = 4
 
 #Reads in the attributes AND labels with pandas package
+
 attr = pd.read_csv('./Data/train.csv', names=["buying","maint","doors","persons","lug_boot","safety","label"])
 
 #Convert the pandas dataframe to a numpyarray
+
 attr = attr.values
 
 #Take the label column(Last column in this example) and save it, then strip/delete it from the original attribute array.
+
 label = attr[:,-1]
 attr = np.delete(attr, -1, axis=1)
 
 #Make a decision tree based off the Gini Index. 
+
 decGi = dt.Tree(label, attr, 1, maxlvl, purityfnc=dt.gini)
 
 
 #Read in test attributes and labels with pandas package
+
 testattr = pd.read_csv('./Data/test.csv',names=["buying","maint","doors","persons","lug_boot","safety","label"])
 
 #convert to numpy array and split, just like before. 
+
 testattr = testattr.values
 testlabel = testattr[:,-1]
 testattr = np.delete(testattr,-1,axis=1)
 
 
 #Find predicted labels using our decision tree
+
 predictions = decGi.predict(testattr)
 
 #Find and sum examples where the tree correctly predicted the label
+
 totaltest = np.sum(predictions == testlabel)
 
 #Output amount of correctly predicted
+
 print("Percentage of correct predictions:" totaltest/testlabel.shape[0])
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------
