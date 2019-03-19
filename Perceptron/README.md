@@ -34,7 +34,7 @@ To use the perceptron, initialize a perceptron object, and then use one of the t
 
 --- Example Creation and usage
 
-```
+```python
 
 #read in train values and labels with pandas.
 vals = pd.read_csv("./Data/bank-note/train.csv",names=["x1","x2","x3","x4","y"])
