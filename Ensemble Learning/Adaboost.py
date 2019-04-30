@@ -44,8 +44,8 @@ for i in range(0,numerics.size):
 	trainlabel = trainattr[:,-1]
 	trainattr = np.delete(trainattr, -1, axis=1)
 	
-	
-	
+
+
 
 testattr = pd.read_csv('./Data/Bank/test.csv', names=["age","job","marital","education","default","balance","housing", "loan", "contact", "day", "month", "duration", "campaign", "pdays", "previous", "poutcome", "y"])		
 testattr = testattr.values
